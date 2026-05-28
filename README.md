@@ -8,8 +8,8 @@ Desarrollada como proyecto integrador en UTNG — 9° Cuatrimestre 2025.
 - **UI:** Jetpack Compose + Material Design 3
 - **Arquitectura:** Jetpack Navigation + Room + StateFlow
 - **Integraciones:**
-    - Wearable Data Layer API (Wear OS)
-    - Android TV / Leanback + Media3
+  - Wearable Data Layer API (Wear OS)
+  - Android TV / Leanback + Media3
 
 ## Pantallas implementadas
 - [x] LoginScreen — S4
@@ -20,10 +20,10 @@ Desarrollada como proyecto integrador en UTNG — 9° Cuatrimestre 2025.
 ## Capturas de pantalla
 
 ### Login
-![Login](screenshots/login.jpeg)
+<img src="screenshots/login.jpeg" width="300" alt="Login">
 
 ### Dashboard
-![Dashboard](screenshots/dashboard.jpeg)
+<img src="screenshots/dashboard.jpeg" width="300" alt="Dashboard">
 
 ## Autor
 Brandon Gustavo Mendoza Amaro — UTNG — brandonchustivo@gmail.com
