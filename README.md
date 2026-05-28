@@ -4,11 +4,12 @@ Aplicación Android multiplataforma para monitoreo de salud personal.
 Desarrollada como proyecto integrador en UTNG — 9° Cuatrimestre 2025.
 
 ## Stack tecnológico
-- Kotlin + Jetpack Compose
-- Material Design 3
-- Wearable Data Layer API (Wear OS)
-- Android TV / Leanback + Media3
-- Jetpack Navigation + Room + StateFlow
+- **Lenguaje:** Kotlin
+- **UI:** Jetpack Compose + Material Design 3
+- **Arquitectura:** Jetpack Navigation + Room + StateFlow
+- **Integraciones:**
+    - Wearable Data Layer API (Wear OS)
+    - Android TV / Leanback + Media3
 
 ## Pantallas implementadas
 - [x] LoginScreen — S4
@@ -16,5 +17,13 @@ Desarrollada como proyecto integrador en UTNG — 9° Cuatrimestre 2025.
 - [ ] Historial + wearable real — S6
 - [ ] Android TV — S10-S12
 
+## Capturas de pantalla
+
+### Login
+![Login](screenshots/login.jpeg)
+
+### Dashboard
+![Dashboard](screenshots/dashboard.jpeg)
+
 ## Autor
-Nombre Apellido — UTNG — nombre.apellido@utng.edu.mx
+Brandon Gustavo Mendoza Amaro — UTNG — brandonchustivo@gmail.com
