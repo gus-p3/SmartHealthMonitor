@@ -11,7 +11,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "mx.edu.utng.bgma.smarthealthmonitor.wear"
+        applicationId = "mx.edu.utng.bgma.smarthealthmonitor"
         minSdk = 30
         targetSdk = 36
         versionCode = 1

@@ -8,6 +8,7 @@ import androidx.health.services.client.data.DataPointContainer
 import androidx.health.services.client.data.DataType
 import androidx.health.services.client.data.PassiveListenerConfig
 import androidx.health.services.client.data.SampleDataPoint
+import com.google.android.gms.tasks.Tasks
 import com.google.android.gms.wearable.MessageClient
 import com.google.android.gms.wearable.Wearable
 import kotlinx.coroutines.*
@@ -41,12 +42,19 @@ class HealthDataService : PassiveListenerService() {
     private suspend fun enviarFC(bpm: Int) {
         try {
             val data = bpm.toString().toByteArray()
-            messageClient.sendMessage(
-                "smartphone",
-                "/smarthealthmonitor/fc",
-                data
-            )
-            Log.d(TAG, "FC enviada al teléfono: $bpm")
+            val nodeClient = Wearable.getNodeClient(this)
+            val nodes = Tasks.await(nodeClient.connectedNodes)
+            for (node in nodes) {
+                messageClient.sendMessage(
+                    node.id,
+                    "/smarthealthmonitor/fc",
+                    data
+                )
+                Log.d(TAG, "FC enviada al nodo ${node.displayName} (${node.id}): $bpm")
+            }
+            if (nodes.isEmpty()) {
+                Log.w(TAG, "No hay nodos conectados para enviar la FC.")
+            }
         } catch (e: Exception) {
             Log.e(TAG, "Error enviando FC: ${e.message}")
         }
@@ -76,6 +84,28 @@ class HealthDataService : PassiveListenerService() {
                 Log.d("HealthDataService", "Health Services registrado correctamente")
             } catch (e: Exception) {
                 Log.e("HealthDataService", "Error registrando: ${e.message}")
+            }
+        }
+
+        suspend fun enviarFCDirectamente(context: Context, bpm: Int) = withContext(Dispatchers.IO) {
+            try {
+                val messageClient = Wearable.getMessageClient(context)
+                val nodeClient = Wearable.getNodeClient(context)
+                val data = bpm.toString().toByteArray()
+                val nodes = Tasks.await(nodeClient.connectedNodes)
+                for (node in nodes) {
+                    messageClient.sendMessage(
+                        node.id,
+                        "/smarthealthmonitor/fc",
+                        data
+                    )
+                    Log.d("HealthDataService", "FC manual enviada al nodo ${node.displayName}: $bpm")
+                }
+                if (nodes.isEmpty()) {
+                    Log.w("HealthDataService", "No hay nodos conectados para enviar FC manual.")
+                }
+            } catch (e: Exception) {
+                Log.e("HealthDataService", "Error enviando FC manual: ${e.message}")
             }
         }
     }
