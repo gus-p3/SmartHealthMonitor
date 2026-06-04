@@ -38,6 +38,7 @@ class HealthDataService : PassiveListenerService() {
         }
 
         val stepsDataPoints = dataPoints.getData(DataType.STEPS_DAILY)
+        Log.d("MiAppDebug", "Contenido de pasos: $stepsDataPoints")
         stepsDataPoints.forEach { dataPoint ->
             val value = dataPoint.value
             val pasos = when (value) {
@@ -144,6 +145,28 @@ class HealthDataService : PassiveListenerService() {
                 }
             } catch (e: Exception) {
                 Log.e("HealthDataService", "Error enviando FC manual: ${e.message}")
+            }
+        }
+
+        suspend fun enviarPasosDirectamente(context: Context, pasos: Int) = withContext(Dispatchers.IO) {
+            try {
+                val messageClient = Wearable.getMessageClient(context)
+                val nodeClient = Wearable.getNodeClient(context)
+                val data = pasos.toString().toByteArray()
+                val nodes = Tasks.await(nodeClient.connectedNodes)
+                for (node in nodes) {
+                    messageClient.sendMessage(
+                        node.id,
+                        "/smarthealthmonitor/pasos",
+                        data
+                    )
+                    Log.d("HealthDataService", "Pasos manuales enviados al nodo ${node.displayName}: $pasos")
+                }
+                if (nodes.isEmpty()) {
+                    Log.w("HealthDataService", "No hay nodos conectados para enviar pasos manuales.")
+                }
+            } catch (e: Exception) {
+                Log.e("HealthDataService", "Error enviando pasos manual: ${e.message}")
             }
         }
     }

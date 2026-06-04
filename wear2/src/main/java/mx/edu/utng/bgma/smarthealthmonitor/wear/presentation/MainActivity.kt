@@ -19,7 +19,6 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
-import mx.edu.utng.bgma.smarthealthmonitor.wear.presentation.theme.SmartHealthMonitorTheme
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.MeasureCallback
 import androidx.health.services.client.data.Availability
@@ -55,6 +54,22 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
+
+            // Enviar los pasos al teléfono automáticamente si se reciben
+            val stepsData = data.getData(DataType.STEPS_DAILY)
+            stepsData.forEach { dataPoint ->
+                val value = dataPoint.value
+                val pasos = when (value) {
+                    is Long -> value.toInt()
+                    is Double -> value.toInt()
+                    is Int -> value
+                    else -> value.toString().toIntOrNull() ?: 0
+                }
+                Log.d("MainActivity", "Pasos recibidos: $pasos")
+                lifecycleScope.launch {
+                    HealthDataService.enviarPasosDirectamente(applicationContext, pasos)
+                }
+            }
         }
     }
 
@@ -68,6 +83,12 @@ class MainActivity : ComponentActivity() {
             }
             return list.toTypedArray()
         }
+
+    private fun checkPermissionsGranted(): Boolean {
+        return permissionsToRequest.all { permission ->
+            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
+        }
+    }
 
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
@@ -108,11 +129,6 @@ class MainActivity : ComponentActivity() {
         }
     }
 
-    private fun checkPermissionsGranted(): Boolean {
-        return permissionsToRequest.all { permission ->
-            ContextCompat.checkSelfPermission(this, permission) == PackageManager.PERMISSION_GRANTED
-        }
-    }
 
     private fun verificarYSolicitarPermisos() {
         if (checkPermissionsGranted()) {
@@ -134,7 +150,7 @@ class MainActivity : ComponentActivity() {
     private fun iniciarMedicion() {
         if (isMeasuring) return
         try {
-            measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
+//            measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
             isMeasuring = true
             Log.d("MainActivity", "Monitoreo de MeasureClient iniciado")
         } catch (e: Exception) {
@@ -184,18 +200,42 @@ fun WearApp(heartRate: Int) {
 
                 Spacer(modifier = Modifier.height(4.dp))
 
-                Chip(
-                    onClick = {
-                        scope.launch {
-                            val bpmToSend = if (heartRate > 0) heartRate else (60..120).random()
-                            HealthDataService.enviarFCDirectamente(context, bpmToSend)
-                        }
-                    },
-                    label = { Text("Enviar FC") },
-                    colors = ChipDefaults.primaryChipColors(),
+                Row(
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
                     modifier = Modifier.padding(top = 8.dp)
-                )
+                ) {
+                    Chip(
+                        onClick = {
+                            scope.launch {
+                                val bpmToSend = if (heartRate > 0) heartRate else (60..120).random()
+                                HealthDataService.enviarFCDirectamente(context, bpmToSend)
+                            }
+                        },
+                        label = { Text("Enviar FC") },
+                        colors = ChipDefaults.primaryChipColors()
+                    )
+
+                    Chip(
+                        onClick = {
+                            scope.launch {
+                                val pasosToSend = (1000..10000).random()
+                                HealthDataService.enviarPasosDirectamente(context, pasosToSend)
+                            }
+                        },
+                        label = { Text("Pasos") },
+                        colors = ChipDefaults.secondaryChipColors()
+                    )
+                }
             }
         }
     }
+}
+
+@Composable
+fun SmartHealthMonitorTheme(
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        content = content
+    )
 }

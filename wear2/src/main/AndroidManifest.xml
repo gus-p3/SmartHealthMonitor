@@ -39,11 +39,10 @@
             </intent-filter>
         </activity>
 
-        <!-- SERVICIO DE HEALTH SERVICES (CORRECTAMENTE UBICADO) -->
         <service
             android:name=".HealthDataService"
             android:exported="true"
-            android:permission="com.google.android.wearable.permission.BIND_LISTENER">
+            android:permission="com.google.android.wearable.healthservices.permission.PASSIVE_DATA_BINDING">
             <intent-filter>
                 <action android:name="androidx.health.services.client.PASSIVE_LISTENER" />
             </intent-filter>
