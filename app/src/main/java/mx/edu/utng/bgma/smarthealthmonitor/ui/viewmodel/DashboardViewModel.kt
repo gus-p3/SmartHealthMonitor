@@ -1,17 +1,15 @@
 package mx.edu.utng.bgma.smarthealthmonitor.ui.viewmodel
 
-
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
+import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
 import mx.edu.utng.bgma.smarthealthmonitor.data.models.MockData
-
 
 class DashboardViewModel : ViewModel() {
 
     // FC: viene del wearable real vía Repository.
-    // Si es 0 (sin dato aún), usar valor simulado.
     val fc: StateFlow<Int> = SmartHealthRepository.fcFlow
         .map { if (it == 0) MockData.fcActual else it }
         .stateIn(
@@ -20,6 +18,7 @@ class DashboardViewModel : ViewModel() {
             initialValue   = MockData.fcActual
         )
 
+    // Pasos: viene del repositorio
     val pasos: StateFlow<Int> = SmartHealthRepository.pasosFlow
         .map { if (it == 0) MockData.pasosActual else it }
         .stateIn(
@@ -28,12 +27,20 @@ class DashboardViewModel : ViewModel() {
             initialValue = MockData.pasosActual
         )
 
-    val spO2 = SmartHealthRepository.spO2Flow.map {
-        if (it == 0) 98 else it // Valor por defecto del 98% si es 0
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5000), 98)
+    // SpO2: CORREGIDO el nombre a spo2Flow (coincidiendo con el Repositorio)
+    val spO2: StateFlow<Int> = SmartHealthRepository.spo2Flow
+        .map { if (it == 0) 98 else it }
+        .stateIn(
+            scope        = viewModelScope,
+            started      = SharingStarted.WhileSubscribed(5_000),
+            initialValue = 98
+        )
 
-
-    val historial = MockData.historialFC  // TODO S7: Room
+    // HISTORIAL: Ahora lee de la base de datos Room vía Repositorio
+    val historial: StateFlow<List<LecturaFC>> = SmartHealthRepository.obtenerHistorial()
+        .stateIn(
+            scope        = viewModelScope,
+            started      = SharingStarted.WhileSubscribed(5_000),
+            initialValue = emptyList()
+        )
 }
-
-

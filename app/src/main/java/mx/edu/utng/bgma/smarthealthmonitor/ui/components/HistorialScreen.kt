@@ -5,46 +5,46 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Surface
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
-// Importamos tus modelos y datos de prueba
-import mx.edu.utng.bgma.smarthealthmonitor.data.models.MockData
-import mx.edu.utng.bgma.smarthealthmonitor.data.models.LecturaFC
+import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZoneId
+import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
+import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
+import mx.edu.utng.bgma.smarthealthmonitor.ui.components.FilaHistorial
 import mx.edu.utng.bgma.smarthealthmonitor.ui.theme.SmartHealthMonitorTheme
+import mx.edu.utng.bgma.smarthealthmonitor.ui.viewmodel.DashboardViewModel
 
+// Extension to convert LocalDate to epoch milliseconds
+fun LocalDate.toEpochMillis(): Long =
+    this.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HistorialScreen(onBack: () -> Unit) {
+fun HistorialScreen(
+    onBack: () -> Unit,
+    viewModel: DashboardViewModel = viewModel()
+) {
+    val lecturas by viewModel.historial.collectAsState()
+    val snackbarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+ 
     SmartHealthMonitorTheme {
         Scaffold(
             topBar = {
                 TopAppBar(
-                    title = {
-                        Text(
-                            text = "Historial",
-                            style = MaterialTheme.typography.titleLarge
-                        )
-                    },
+                    title = { Text("Historial de FC") },
                     navigationIcon = {
                         IconButton(onClick = onBack) {
                             Icon(
-                                imageVector = Icons.AutoMirrored.Filled.ArrowBack,
+                                Icons.AutoMirrored.Filled.ArrowBack,
                                 contentDescription = "Regresar"
                             )
                         }
@@ -55,72 +55,58 @@ fun HistorialScreen(onBack: () -> Unit) {
                         navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
                     )
                 )
-            }
-        ) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(paddingValues)
-                    .padding(16.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp)
-            ) {
-                items(MockData.historialFC) { lectura ->
-                    FilaHistorial(lectura)
+            },
+            snackbarHost = { SnackbarHost(snackbarHostState) },
+            floatingActionButton = {
+                FloatingActionButton(
+                    onClick = {
+                        coroutineScope.launch {
+                            SmartHealthRepository.limpiarHistorialAntiguo(
+                                LocalDate.now().minusDays(1).toEpochMillis()
+                            )
+                            snackbarHostState.showSnackbar("Historial limpiado")
+                        }
+                    }
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Limpiar historial"
+                    )
                 }
             }
-        }
-    }
-}
-
-// Ahora que ya tiene el tema, el Preview se verá exactamente como en el dispositivo
-@Preview(showBackground = true, name = "Historial - Light")
-@Composable
-private fun HistorialScreen() {
-    HistorialScreen(onBack = {})
-}
-
-
-@Composable
-fun FilaHistorial(lectura: LecturaFC) {
-    Card(
-        modifier = Modifier.fillMaxWidth(),
-        elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
-        colors = CardDefaults.cardColors(
-            // El color cambia según esNormal (Verde claro si es normal, rojo claro si no)
-            containerColor = if (lectura.esNormal) Color(0xFFE8F5E9) else Color(0xFFFFEBEE)
-        )
-    ) {
-        Row(
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.SpaceBetween
-        ) {
-            Column {
-                Text(
-                    text = "Hora: ${lectura.hora}",
-                    style = MaterialTheme.typography.labelMedium,
-                    color = Color.Gray
-                )
-                Text(
-                    text = "${lectura.valorBpm} BPM",
-                    style = MaterialTheme.typography.headlineSmall,
-                    color = if (lectura.esNormal) Color(0xFF2E7D32) else Color(0xFFC62828)
-                )
-            }
-
-            // Etiqueta de estado
-            Surface(
-                shape = MaterialTheme.shapes.small,
-                color = if (lectura.esNormal) Color(0xFF2E7D32) else Color(0xFFC62828)
-            ) {
-                Text(
-                    text = if (lectura.esNormal) "NORMAL" else "ALERTA",
-                    modifier = Modifier.padding(horizontal = 8.dp, vertical = 4.dp),
-                    color = Color.White,
-                    style = MaterialTheme.typography.labelLarge
-                )
+        ) { paddingValues ->
+            if (lecturas.isEmpty()) {
+                // Estado vacío
+                Box(
+                    Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(
+                        "No hay lecturas aún.\nEspera a que el reloj envíe datos.",
+                        style = MaterialTheme.typography.bodyLarge,
+                        textAlign = TextAlign.Center,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.padding(paddingValues),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    item {
+                        Text(
+                            text = "${lecturas.size} lecturas registradas",
+                            style = MaterialTheme.typography.labelMedium,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                            modifier = Modifier.padding(16.dp)
+                        )
+                    }
+                    items(lecturas, key = { it.id }) { lectura ->
+                        FilaHistorial(lectura = lectura)
+                    }
+                }
             }
         }
     }

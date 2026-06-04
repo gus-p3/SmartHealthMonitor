@@ -4,6 +4,7 @@
     package="mx.edu.utng.bgma.smarthealthmonitor">
 
     <application
+        android:name=".SmartHealthApp"
         android:allowBackup="true"
         android:dataExtractionRules="@xml/data_extraction_rules"
         android:fullBackupContent="@xml/backup_rules"
@@ -25,13 +26,17 @@
         </activity>
 
         <!-- AndroidManifest.xml — dentro de <application> -->
-        <service android:name=".data.WearListenerService"
+        <service
+            android:name=".data.WearListenerService"
             android:exported="true">
             <intent-filter>
-                <action android:name=
-                    "com.google.android.gms.wearable.MESSAGE_RECEIVED" />
-                <data android:scheme="wear"
+                <!-- Acción necesaria para recibir mensajes de Wear OS -->
+                <action android:name="com.google.android.gms.wearable.MESSAGE_RECEIVED" />
+
+                <!-- Filtro para el path específico definido en el reloj -->
+                <data
                     android:host="*"
+                    android:scheme="wear"
                     android:pathPrefix="/smarthealthmonitor" />
             </intent-filter>
         </service>

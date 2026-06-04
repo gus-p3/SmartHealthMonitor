@@ -9,11 +9,13 @@ import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import kotlinx.coroutines.launch
 // Import importante para el botón de simulación
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
 import mx.edu.utng.bgma.smarthealthmonitor.ui.theme.SmartHealthMonitorTheme
@@ -30,11 +32,14 @@ fun DashboardScreen(
     pasosManual: Int? = null,
     spO2Manual: Int? = null
 ) {
+    // Scope para ejecutar funciones suspendidas (como la simulación)
+    val scope = rememberCoroutineScope()
+    
     // Observar estados del ViewModel
     val fcState by viewModel.fc.collectAsState()
     val pasosState by viewModel.pasos.collectAsState()
     val spO2State by viewModel.spO2.collectAsState()
-    val historial = viewModel.historial
+    val historial by viewModel.historial.collectAsState()
 
     // Usar valor manual (si existe) o el del estado (reactivo)
     val fc = fcManual ?: fcState
@@ -136,10 +141,12 @@ fun DashboardScreen(
                         Spacer(modifier = Modifier.height(8.dp))
                         OutlinedButton(
                             onClick = {
-                                // Simulación de datos variados
-                                SmartHealthRepository.actualizarFC((60..120).random())
-                                SmartHealthRepository.actualizarPasos((1000..9000).random())
-                                SmartHealthRepository.actualizarSpO2((90..100).random())
+                                // Las funciones suspendidas deben llamarse dentro de un scope
+                                scope.launch {
+                                    SmartHealthRepository.actualizarFC((60..120).random())
+                                    SmartHealthRepository.actualizarPasos((1000..9000).random())
+                                    SmartHealthRepository.actualizarSpO2((90..100).random())
+                                }
                             },
                             modifier = Modifier.fillMaxWidth()
                         ) {
