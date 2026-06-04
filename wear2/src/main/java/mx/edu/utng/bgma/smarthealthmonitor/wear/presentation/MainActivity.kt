@@ -49,9 +49,9 @@ class MainActivity : ComponentActivity() {
                 Log.d("MainActivity", "FC del emulador recibida: $bpm BPM")
                 currentHeartRate.value = bpm
                 // Enviar la frecuencia cardíaca al teléfono automáticamente en tiempo real
-                lifecycleScope.launch {
-                    HealthDataService.enviarFCDirectamente(applicationContext, bpm)
-                }
+                // lifecycleScope.launch {
+                //     HealthDataService.enviarFCDirectamente(applicationContext, bpm)
+                // }
             }
 
             // Enviar los pasos al teléfono automáticamente si se reciben
@@ -66,9 +66,9 @@ class MainActivity : ComponentActivity() {
                     else -> value.toString().toIntOrNull() ?: 0
                 }
                 Log.d("MainActivity", "Pasos recibidos: $pasos")
-                lifecycleScope.launch {
-                    HealthDataService.enviarPasosDirectamente(applicationContext, pasos)
-                }
+                // lifecycleScope.launch {
+                //     HealthDataService.enviarPasosDirectamente(applicationContext, pasos)
+                // }
             }
         }
     }
@@ -99,7 +99,7 @@ class MainActivity : ComponentActivity() {
         if (allGranted) {
             Log.d("MainActivity", "Todos los permisos necesarios concedidos.")
             lifecycleScope.launch {
-                HealthDataService.registrar(applicationContext)
+                // HealthDataService.registrar(applicationContext)
                 iniciarMedicion()
             }
         } else {
@@ -133,7 +133,7 @@ class MainActivity : ComponentActivity() {
     private fun verificarYSolicitarPermisos() {
         if (checkPermissionsGranted()) {
             lifecycleScope.launch {
-                HealthDataService.registrar(applicationContext)
+                // HealthDataService.registrar(applicationContext)
                 iniciarMedicion()
             }
         } else {
