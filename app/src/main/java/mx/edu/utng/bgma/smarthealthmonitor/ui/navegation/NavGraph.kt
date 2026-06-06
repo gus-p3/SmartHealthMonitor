@@ -20,7 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import mx.edu.utng.bgma.smarthealthmonitor.LoginScreen
 import mx.edu.utng.bgma.smarthealthmonitor.ui.components.DashboardScreen
-import mx.edu.utng.bgma.smarthealthmonitor.ui.screens.HistorialScreen
+import mx.edu.utng.bgma.smarthealthmonitor.ui.components.HistorialScreen
 import mx.edu.utng.bgma.smarthealthmonitor.ui.theme.SmartHealthMonitorTheme
 
 @Composable

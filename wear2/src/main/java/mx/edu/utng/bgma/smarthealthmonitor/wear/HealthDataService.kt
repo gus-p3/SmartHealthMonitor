@@ -1,5 +1,6 @@
 package mx.edu.utng.bgma.smarthealthmonitor.wear
 
+import kotlinx.coroutines.guava.await
 import android.content.Context
 import android.util.Log
 import androidx.health.services.client.HealthServices
@@ -31,9 +32,9 @@ class HealthDataService : PassiveListenerService() {
         if (lastFC is SampleDataPoint<Double>) {
             val bpm = lastFC.value.toInt()
             Log.d(TAG, "FC recibida (última del lote): $bpm BPM")
-            // scope.launch {
-            //     enviarFC(bpm)
-            // }
+            scope.launch {
+                enviarFC(bpm)
+            }
         }
 
         val stepsDataPoints = dataPoints.getData(DataType.STEPS_DAILY)
@@ -48,9 +49,9 @@ class HealthDataService : PassiveListenerService() {
                 else -> value.toString().toIntOrNull() ?: 0
             }
             Log.d(TAG, "Pasos recibidos (últimos del lote): $pasos")
-            // scope.launch {
-            //     enviarPasos(pasos)
-            // }
+            scope.launch {
+                enviarPasos(pasos)
+            }
         }
     }
 
@@ -119,7 +120,7 @@ class HealthDataService : PassiveListenerService() {
                 passiveClient.setPassiveListenerServiceAsync(
                     HealthDataService::class.java,
                     config
-                )
+                ).await()
                 Log.d("HealthDataService", "Health Services registrado correctamente")
             } catch (e: Exception) {
                 Log.e("HealthDataService", "Error registrando: ${e.message}")

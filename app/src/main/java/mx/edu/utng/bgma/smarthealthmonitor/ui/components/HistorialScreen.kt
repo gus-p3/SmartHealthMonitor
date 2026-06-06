@@ -1,4 +1,4 @@
-package mx.edu.utng.bgma.smarthealthmonitor.ui.screens
+package mx.edu.utng.bgma.smarthealthmonitor.ui.components // Paquete corregido
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
@@ -14,17 +14,9 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import kotlinx.coroutines.launch
-import java.time.LocalDate
-import java.time.ZoneId
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
-import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
-import mx.edu.utng.bgma.smarthealthmonitor.ui.components.FilaHistorial
 import mx.edu.utng.bgma.smarthealthmonitor.ui.theme.SmartHealthMonitorTheme
 import mx.edu.utng.bgma.smarthealthmonitor.ui.viewmodel.DashboardViewModel
-
-// Extension to convert LocalDate to epoch milliseconds
-fun LocalDate.toEpochMillis(): Long =
-    this.atStartOfDay(ZoneId.systemDefault()).toInstant().toEpochMilli()
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -32,10 +24,11 @@ fun HistorialScreen(
     onBack: () -> Unit,
     viewModel: DashboardViewModel = viewModel()
 ) {
+    // Observamos el historial desde el ViewModel (que ahora viene de Room)
     val lecturas by viewModel.historial.collectAsState()
     val snackbarHostState = remember { SnackbarHostState() }
     val coroutineScope = rememberCoroutineScope()
- 
+
     SmartHealthMonitorTheme {
         Scaffold(
             topBar = {
@@ -61,10 +54,9 @@ fun HistorialScreen(
                 FloatingActionButton(
                     onClick = {
                         coroutineScope.launch {
-                            SmartHealthRepository.limpiarHistorialAntiguo(
-                                LocalDate.now().minusDays(1).toEpochMillis()
-                            )
-                            snackbarHostState.showSnackbar("Historial limpiado")
+                            // Se llama sin parámetros para usar los 7 días por defecto
+                            SmartHealthRepository.limpiarHistorialAntiguo()
+                            snackbarHostState.showSnackbar("Historial antiguo limpiated")
                         }
                     }
                 ) {
@@ -76,7 +68,6 @@ fun HistorialScreen(
             }
         ) { paddingValues ->
             if (lecturas.isEmpty()) {
-                // Estado vacío
                 Box(
                     Modifier
                         .fillMaxSize()
