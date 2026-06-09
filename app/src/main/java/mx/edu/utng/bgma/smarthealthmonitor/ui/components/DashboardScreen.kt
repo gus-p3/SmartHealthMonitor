@@ -20,34 +20,56 @@ import kotlinx.coroutines.launch
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
 import mx.edu.utng.bgma.smarthealthmonitor.ui.theme.SmartHealthMonitorTheme
 import mx.edu.utng.bgma.smarthealthmonitor.ui.viewmodel.DashboardViewModel
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
+import kotlinx.coroutines.launch
+import mx.edu.utng.bgma.smarthealthmonitor.ui.screens.AlertaScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DashboardScreen(
     onHistorialClick: () -> Unit = {},
-    onAlertClick: () -> Unit = {},
     viewModel: DashboardViewModel = viewModel(),
-    // Parámetros opcionales para facilitar la Preview
-    fcManual: Int? = null,
-    pasosManual: Int? = null,
-    spO2Manual: Int? = null
 ) {
     // Scope para ejecutar funciones suspendidas (como la simulación)
     val scope = rememberCoroutineScope()
     
     // Observar estados del ViewModel
-    val fcState by viewModel.fc.collectAsState()
-    val pasosState by viewModel.pasos.collectAsState()
-    val spO2State by viewModel.spO2.collectAsState()
+    val fc       by viewModel.fc.collectAsState()
+    val pasos    by viewModel.pasos.collectAsState()
+    val spO2 by viewModel.spO2.collectAsState()
     val historial by viewModel.historial.collectAsState()
 
-    // Usar valor manual (si existe) o el del estado (reactivo)
-    val fc = fcManual ?: fcState
-    val pasos = pasosManual ?: pasosState
-    val spO2 = spO2Manual ?: spO2State
+    // ── Estado del diálogo y Snackbar ──────────────────────
+    var mostrarAlerta by remember { mutableStateOf(false) }
+    val snackbarHost  = remember { SnackbarHostState() }
+
+    // ── Diálogo condicional ────────────────────────────────
+    if (mostrarAlerta) {
+        AlertaScreen(
+            fc          = fc,
+            onDismiss   = { mostrarAlerta = false },
+            onConfirmar = {
+                mostrarAlerta = false
+                scope.launch {
+                    snackbarHost.showSnackbar(
+                        message  = "✅ Alerta enviada a tus contactos de emergencia",
+                        duration = SnackbarDuration.Long
+                    )
+                }
+            }
+        )
+    }
+
+
 
     SmartHealthMonitorTheme {
         Scaffold(
+            snackbarHost = { SnackbarHost(hostState = snackbarHost) },
             topBar = {
                 TopAppBar(
                     title = {
@@ -64,14 +86,12 @@ fun DashboardScreen(
             },
             floatingActionButton = {
                 FloatingActionButton(
-                    onClick       = onAlertClick,
+                    onClick        = { mostrarAlerta = true },
                     containerColor = MaterialTheme.colorScheme.error
                 ) {
-                    Icon(
-                        imageVector       = Icons.Default.Warning,
+                    Icon(Icons.Default.Warning,
                         contentDescription = "Enviar alerta de emergencia",
-                        tint              = MaterialTheme.colorScheme.onError
-                    )
+                        tint = MaterialTheme.colorScheme.onError)
                 }
             }
         ) { paddingValues ->
@@ -165,8 +185,5 @@ fun DashboardScreen(
 @Composable
 private fun DashboardScreenPreview() {
     DashboardScreen(
-        fcManual = 75,
-        pasosManual = 4500,
-        spO2Manual = 98
     )
 }
