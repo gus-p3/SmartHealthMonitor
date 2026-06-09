@@ -26,7 +26,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import kotlinx.coroutines.launch
 import mx.edu.utng.bgma.smarthealthmonitor.ui.screens.AlertaScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -53,19 +52,27 @@ fun DashboardScreen(
         AlertaScreen(
             fc          = fc,
             onDismiss   = { mostrarAlerta = false },
-            onConfirmar = {
+            onConfirmar = { nota -> // S9: Recibe la nota de la alerta
                 mostrarAlerta = false
                 scope.launch {
-                    snackbarHost.showSnackbar(
-                        message  = "✅ Alerta enviada a tus contactos de emergencia",
-                        duration = SnackbarDuration.Long
+                    // S10: Snackbar con acción de Deshacer
+                    val result = snackbarHost.showSnackbar(
+                        message     = "✅ Alerta enviada. Nota: $nota",
+                        actionLabel = "Deshacer",
+                        duration    = SnackbarDuration.Long
                     )
+                    
+                    // Si el usuario presiona "Deshacer", mostramos un segundo snackbar
+                    if (result == SnackbarResult.ActionPerformed) {
+                        snackbarHost.showSnackbar(
+                            message  = "Alerta cancelada",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
                 }
             }
         )
     }
-
-
 
     SmartHealthMonitorTheme {
         Scaffold(
