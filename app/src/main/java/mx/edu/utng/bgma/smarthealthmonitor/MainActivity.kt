@@ -30,7 +30,9 @@ class MainActivity : ComponentActivity() {
 //        }
         setContent {
             // NavGraph es ahora el punto de entrada — no LoginScreen directamente
-            SmartHealthNavGraph()
+            SmartHealthMonitorTheme {
+                SmartHealthNavGraph()
+            }
         }
     }
 }
