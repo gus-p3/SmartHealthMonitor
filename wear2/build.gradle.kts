@@ -52,6 +52,7 @@ dependencies {
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
+    implementation(libs.androidx.compose.runtime)
     androidTestImplementation(platform(libs.androidx.compose.bom))
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
@@ -62,4 +63,8 @@ dependencies {
     // Coroutines await() para Guava ListenableFuture
     implementation("com.google.guava:guava:33.0.0-android")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
+    
+    // Shared module (KMM)
+    implementation(project(":shared"))
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
 }
