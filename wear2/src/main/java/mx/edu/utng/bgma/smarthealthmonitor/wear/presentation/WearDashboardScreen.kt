@@ -15,9 +15,10 @@ import mx.edu.utng.bgma.smarthealthmonitor.wear.presentation.components.WearFCCa
 @Composable
 fun WearDashboardScreen(
     onAlertClick: () -> Unit = {},
-    viewModel: WearDashboardViewModel = viewModel() // Ahora debería funcionar
+    viewModel: WearDashboardViewModel = viewModel()
 ) {
     val fc by viewModel.fc.collectAsState()
+    val pasos by viewModel.pasos.collectAsState()
     val listState = rememberScalingLazyListState()
 
     Scaffold(
@@ -38,6 +39,19 @@ fun WearDashboardScreen(
                     modifier = Modifier.fillMaxWidth()
                 )
             }
+            
+            // Reto adicional: CompactChip para pasos
+            item {
+                CompactChip(
+                    label = { 
+                        Text(if (pasos == 0) "-- pasos" else "$pasos pasos") 
+                    },
+                    onClick = { /* Acción opcional */ },
+                    colors = ChipDefaults.secondaryChipColors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
             item {
                 Chip(
                     label = { Text("⚠ Alerta") },

@@ -6,9 +6,7 @@ plugins {
 
 android {
     namespace = "mx.edu.utng.bgma.smarthealthmonitor.wear"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
         applicationId = "mx.edu.utng.bgma.smarthealthmonitor"
@@ -16,7 +14,6 @@ android {
         targetSdk = 36
         versionCode = 1
         versionName = "1.0"
-
     }
 
     buildTypes {
@@ -35,7 +32,6 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
-    useLibrary("wear-sdk")
     buildFeatures {
         compose = true
     }
@@ -49,22 +45,20 @@ dependencies {
     implementation(libs.androidx.compose.ui.tooling.preview)
     implementation(libs.androidx.compose.material)
     implementation(libs.androidx.compose.foundation)
+    
+    // Iconos de Material
+    implementation("androidx.compose.material:material-icons-core")
+
     implementation(libs.androidx.wear.tooling.preview)
     implementation(libs.androidx.activity.compose)
     implementation(libs.androidx.core.splashscreen)
     implementation(libs.androidx.compose.runtime)
-    androidTestImplementation(platform(libs.androidx.compose.bom))
-    androidTestImplementation(libs.androidx.compose.ui.test.junit4)
-    debugImplementation(libs.androidx.compose.ui.tooling)
-    debugImplementation(libs.androidx.compose.ui.test.manifest)
-    // Health Services API
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    
     implementation("androidx.health:health-services-client:1.1.0-alpha03")
-
-    // Coroutines await() para Guava ListenableFuture
     implementation("com.google.guava:guava:33.0.0-android")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-guava:1.7.3")
     
-    // Shared module (KMM)
     implementation(project(":shared"))
-    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.6")
+    implementation(libs.androidx.compose.navigation)
 }

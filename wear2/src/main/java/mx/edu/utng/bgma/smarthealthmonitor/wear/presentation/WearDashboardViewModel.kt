@@ -16,5 +16,9 @@ class WearDashboardViewModel : ViewModel() {
         .map { if (it == 0) 72 else it }  // valor por defecto
         .stateIn(viewModelScope,
             SharingStarted.WhileSubscribed(5_000), 72)
-}
 
+    // Reto adicional: Flujo de pasos
+    val pasos: StateFlow<Int> = SmartHealthRepository.pasosFlow
+        .stateIn(viewModelScope,
+            SharingStarted.WhileSubscribed(5_000), 0)
+}

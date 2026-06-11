@@ -159,7 +159,7 @@ class MainActivity : ComponentActivity() {
 @Composable
 fun WearApp(heartRate: Int) {
     SmartHealthMonitorTheme {
-        WearDashboardScreen()
+        SmartHealthWearNavGraph()
     }
 }
 
