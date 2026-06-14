@@ -61,4 +61,10 @@ dependencies {
     
     implementation(project(":shared"))
     implementation(libs.androidx.compose.navigation)
+
+    implementation("androidx.wear.watchface:watchface:1.2.1")
+    implementation("androidx.wear.watchface:watchface-complications-rendering:1.2.1")
+    implementation("androidx.wear.watchface:watchface-style:1.2.1")
+    implementation(libs.androidx.compiler)
+
 }

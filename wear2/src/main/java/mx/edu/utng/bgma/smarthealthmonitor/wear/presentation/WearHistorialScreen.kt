@@ -32,7 +32,6 @@ fun WearHistorialScreen(
     val listState = rememberScalingLazyListState()
     val focusRequester = remember { FocusRequester() }
 
-    // Pedir foco para recibir eventos de la corona
     LaunchedEffect(Unit) {
         focusRequester.requestFocus()
     }
@@ -46,10 +45,12 @@ fun WearHistorialScreen(
         }
     ) {
         ScalingLazyColumn(
-            state    = listState,
+            state = listState,
+            // RETO EXTRA: Snap fling behavior añadido
+            flingBehavior = ScalingLazyColumnDefaults.snapFlingBehavior(state = listState),
             modifier = Modifier
                 .fillMaxSize()
-                .rotaryScrollable(  // ← conecta la corona
+                .rotaryScrollable(
                     behavior = RotaryScrollableDefaults.behavior(
                         scrollableState = listState
                     ),
@@ -75,5 +76,3 @@ fun WearHistorialScreen(
         }
     }
 }
-
-
