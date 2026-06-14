@@ -11,13 +11,8 @@ import androidx.core.content.ContextCompat
 import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
-import mx.edu.utng.bgma.smarthealthmonitor.wear.HealthDataService
-import androidx.compose.foundation.background
-import androidx.compose.foundation.layout.*
+import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
 import androidx.compose.runtime.*
-import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.unit.dp
 import androidx.wear.compose.material.*
 import androidx.health.services.client.HealthServices
 import androidx.health.services.client.MeasureCallback
@@ -29,7 +24,6 @@ import androidx.health.services.client.data.SampleDataPoint
 
 class MainActivity : ComponentActivity() {
 
-    private val currentHeartRate = mutableStateOf(0)
     private var isMeasuring = false
     private val measureClient by lazy { HealthServices.getClient(this).measureClient }
 
@@ -46,8 +40,12 @@ class MainActivity : ComponentActivity() {
             val lastFC = heartRateData.lastOrNull()
             if (lastFC is SampleDataPoint<Double>) {
                 val bpm = lastFC.value.toInt()
-                Log.d("MainActivity", "FC del emulador recibida: $bpm BPM")
-                currentHeartRate.value = bpm
+                Log.d("MainActivity", "FC recibida: $bpm BPM")
+                
+                // Actualizamos el repositorio para que el ViewModel lo muestre
+                lifecycleScope.launch {
+                    SmartHealthRepository.actualizarFC(bpm)
+                }
             }
 
             val stepsData = data.getData(DataType.STEPS_DAILY)
@@ -60,18 +58,18 @@ class MainActivity : ComponentActivity() {
                     is Int -> value
                     else -> value.toString().toIntOrNull() ?: 0
                 }
-                Log.d("MainActivity", "Pasos recibidos: $pasos")
+                lifecycleScope.launch {
+                    SmartHealthRepository.actualizarPasos(pasos)
+                }
             }
         }
     }
 
     private val permissionsToRequest: Array<String>
-        get() {
-            val list = mutableListOf(Manifest.permission.ACTIVITY_RECOGNITION)
-            // Wear OS usa BODY_SENSORS para el ritmo cardíaco
-            list.add(Manifest.permission.BODY_SENSORS)
-            return list.toTypedArray()
-        }
+        get() = arrayOf(
+            Manifest.permission.ACTIVITY_RECOGNITION,
+            Manifest.permission.BODY_SENSORS
+        )
 
     private fun checkPermissionsGranted(): Boolean {
         return permissionsToRequest.all { permission ->
@@ -82,30 +80,22 @@ class MainActivity : ComponentActivity() {
     private val permissionLauncher = registerForActivityResult(
         ActivityResultContracts.RequestMultiplePermissions()
     ) { permissions ->
-        val allGranted = permissionsToRequest.all { permission ->
-            permissions[permission] == true
-        }
-        if (allGranted) {
-            Log.d("MainActivity", "Todos los permisos necesarios concedidos.")
-            lifecycleScope.launch {
-                iniciarMedicion()
-            }
+        if (permissions.all { it.value }) {
+            iniciarMedicion()
         } else {
-            Log.w("MainActivity", "Algunos permisos requeridos fueron denegados.")
+            Log.w("MainActivity", "Permisos denegados")
         }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         installSplashScreen()
         super.onCreate(savedInstanceState)
-
         setTheme(android.R.style.Theme_DeviceDefault)
 
         verificarYSolicitarPermisos()
 
         setContent {
-            val heartRate by currentHeartRate
-            WearApp(heartRate = heartRate)
+            WearApp()
         }
     }
 
@@ -118,11 +108,8 @@ class MainActivity : ComponentActivity() {
 
     private fun verificarYSolicitarPermisos() {
         if (checkPermissionsGranted()) {
-            lifecycleScope.launch {
-                iniciarMedicion()
-            }
+            iniciarMedicion()
         } else {
-            Log.d("MainActivity", "Solicitando permisos necesarios...")
             permissionLauncher.launch(permissionsToRequest)
         }
     }
@@ -135,12 +122,12 @@ class MainActivity : ComponentActivity() {
     private fun iniciarMedicion() {
         if (isMeasuring) return
         try {
-            // Descomenta para activar la medición real en un reloj físico
-            // measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
+            // Activamos el registro del callback para recibir datos reales
+            measureClient.registerMeasureCallback(DataType.HEART_RATE_BPM, measureCallback)
             isMeasuring = true
-            Log.d("MainActivity", "Monitoreo de MeasureClient iniciado")
+            Log.d("MainActivity", "Medición iniciada correctamente")
         } catch (e: Exception) {
-            Log.e("MainActivity", "Error al registrar MeasureCallback: ${e.message}")
+            Log.e("MainActivity", "Error al iniciar medición: ${e.message}")
         }
     }
 
@@ -149,16 +136,17 @@ class MainActivity : ComponentActivity() {
         try {
             measureClient.unregisterMeasureCallbackAsync(DataType.HEART_RATE_BPM, measureCallback)
             isMeasuring = false
-            Log.d("MainActivity", "Monitoreo de MeasureClient detenido")
+            Log.d("MainActivity", "Medición detenida")
         } catch (e: Exception) {
-            Log.e("MainActivity", "Error al desregistrar MeasureCallback: ${e.message}")
+            Log.e("MainActivity", "Error al detener medición: ${e.message}")
         }
     }
 }
 
 @Composable
-fun WearApp(heartRate: Int) {
+fun WearApp() {
     SmartHealthMonitorTheme {
+        // Solo llamamos al NavGraph, él maneja las pantallas
         SmartHealthWearNavGraph()
     }
 }
