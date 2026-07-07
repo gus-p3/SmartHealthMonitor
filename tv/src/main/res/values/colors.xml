@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Paleta SmartHealth TV — coincide con MD3 de S2 -->
+    <color name="sh_primary">#1B4F8A</color>
+    <color name="sh_amber">#D4860A</color>
+    <color name="sh_dark">#0D1117</color>
+    <color name="sh_error">#B3261E</color>
+    <color name="sh_white">#FFFFFF</color>
+    <color name="sh_surface">#161B22</color>
+</resources>
