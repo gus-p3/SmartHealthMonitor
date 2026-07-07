@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- tv/src/main/res/layout/activity_main.xml -->
+<!--
+    FrameLayout simple: actúa como contenedor para MainFragment.
+    El id 'main_browse_fragment' es el punto de anclaje del Fragment.
+-->
+<FrameLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/main_browse_fragment"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent" />
