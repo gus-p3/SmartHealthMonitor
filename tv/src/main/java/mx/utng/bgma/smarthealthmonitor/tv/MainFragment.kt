@@ -59,6 +59,16 @@ class MainFragment : BrowseSupportFragment() {
         LecturaFC(id = 7, valorBpm = 74,  hora = "08:00")
     )
 
+    /**
+     * ⭐ Reto adicional — Alertas recientes simuladas.
+     * FC > 100 bpm (taquicardia) o < 60 bpm (bradicardia) → card en rojo.
+     */
+    private val alertasMock = listOf(
+        LecturaFC(id = 10, valorBpm = 130, hora = "07:15"),  // taquicardia
+        LecturaFC(id = 11, valorBpm = 48,  hora = "06:50"),  // bradicardia
+        LecturaFC(id = 12, valorBpm = 122, hora = "06:10")   // taquicardia
+    )
+
     // ─────────────────────────────────────────────────────────────────
     //  Construcción de filas
     // ─────────────────────────────────────────────────────────────────
@@ -76,6 +86,13 @@ class MainFragment : BrowseSupportFragment() {
         val histAdapter = ArrayObjectAdapter(FCCardPresenter())
         historialMock.forEach { histAdapter.add(it) }
         rowsAdapter.add(ListRow(HeaderItem("Historial FC"), histAdapter))
+
+        // ── Fila 3: Alertas recientes (⭐ reto adicional) ─────────────
+        // Reutiliza FCCardPresenter — las alertas con FC fuera de rango
+        // se colorean en rojo automáticamente por la lógica del presenter.
+        val alertasAdapter = ArrayObjectAdapter(FCCardPresenter())
+        alertasMock.forEach { alertasAdapter.add(it) }
+        rowsAdapter.add(ListRow(HeaderItem("Alertas recientes"), alertasAdapter))
 
         adapter = rowsAdapter
     }
