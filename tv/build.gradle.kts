@@ -6,13 +6,13 @@ plugins {
 }
 
 android {
-    namespace = "mx.utng.bgma.smarthealthmonitor.tv"
+    namespace = "mx.edu.utng.bgma.smarthealthmonitor"
     compileSdk {
         version = release(36)
     }
 
     defaultConfig {
-        applicationId = "mx.utng.bgma.smarthealthmonitor.tv"
+        applicationId = "mx.edu.utng.bgma.smarthealthmonitor"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -56,4 +56,8 @@ dependencies {
 
     // Core KTX
     implementation(libs.androidx.core.ktx)
+
+    // Wearable Data Layer API en TV
+    implementation("com.google.android.gms:play-services-wearable:18.2.0")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
 }

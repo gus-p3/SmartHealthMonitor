@@ -3,6 +3,7 @@ package mx.utng.bgma.smarthealthmonitor.tv
 
 import android.os.Bundle
 import androidx.fragment.app.FragmentActivity
+import mx.edu.utng.bgma.smarthealthmonitor.R
 
 /**
  * MainActivity para Android TV.

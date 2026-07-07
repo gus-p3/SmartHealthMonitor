@@ -4,11 +4,17 @@ package mx.utng.bgma.smarthealthmonitor.tv
 import android.graphics.Color
 import android.os.Bundle
 import android.view.View
+import androidx.fragment.app.viewModels
 import androidx.leanback.app.BrowseSupportFragment
 import androidx.leanback.widget.ArrayObjectAdapter
 import androidx.leanback.widget.HeaderItem
 import androidx.leanback.widget.ListRow
 import androidx.leanback.widget.ListRowPresenter
+import androidx.lifecycle.Lifecycle
+import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
+import kotlinx.coroutines.launch
+import mx.edu.utng.bgma.smarthealthmonitor.R
 import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
 
 /**
@@ -29,6 +35,9 @@ import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
  *               FCCardPresenter → ImageCardView
  */
 class MainFragment : BrowseSupportFragment() {
+    private val viewModel: TvViewModel by viewModels()
+    private lateinit var histAdapter: ArrayObjectAdapter
+
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -40,24 +49,16 @@ class MainFragment : BrowseSupportFragment() {
 
         // Color de la marca en el sidebar izquierdo — sh_primary
         brandColor = Color.parseColor("#1B4F8A")
-
         cargarFilas()
+        observarDatos()
+
     }
 
     // ─────────────────────────────────────────────────────────────────
     //  Datos simulados — en Ej.03 vendrán de Room vía TvViewModel
     // ─────────────────────────────────────────────────────────────────
 
-    /** Historial de FC simulado (7 lecturas de distintas horas). */
-    private val historialMock = listOf(
-        LecturaFC(id = 1, valorBpm = 78,  hora = "11:00"),
-        LecturaFC(id = 2, valorBpm = 82,  hora = "10:30"),
-        LecturaFC(id = 3, valorBpm = 76,  hora = "10:00"),
-        LecturaFC(id = 4, valorBpm = 115, hora = "09:30"),   // fuera de rango → rojo
-        LecturaFC(id = 5, valorBpm = 71,  hora = "09:00"),
-        LecturaFC(id = 6, valorBpm = 80,  hora = "08:30"),
-        LecturaFC(id = 7, valorBpm = 74,  hora = "08:00")
-    )
+    // historialMock eliminado — Fila 2 ahora viene de Room vía TvViewModel.historial (StateFlow)
 
     /**
      * ⭐ Reto adicional — Alertas recientes simuladas.
@@ -82,9 +83,10 @@ class MainFragment : BrowseSupportFragment() {
         estadoAdapter.add(LecturaFC(id = -1, valorBpm = 4250, hora = "Pasos"))  // > 100 → rojo
         rowsAdapter.add(ListRow(HeaderItem("Estado actual"), estadoAdapter))
 
-        // ── Fila 2: Historial de FC ───────────────────────────────────
-        val histAdapter = ArrayObjectAdapter(FCCardPresenter())
-        historialMock.forEach { histAdapter.add(it) }
+        // ── Fila 2: Historial FC — adapter reactivo actualizado por TvViewModel ──
+        // CRÍTICO: asignar a la propiedad de clase (no local)
+        // para que observarDatos() pueda actualizarla desde el StateFlow de Room
+        histAdapter = ArrayObjectAdapter(FCCardPresenter())
         rowsAdapter.add(ListRow(HeaderItem("Historial FC"), histAdapter))
 
         // ── Fila 3: Alertas recientes (⭐ reto adicional) ─────────────
@@ -96,4 +98,18 @@ class MainFragment : BrowseSupportFragment() {
 
         adapter = rowsAdapter
     }
+
+    private fun observarDatos() {
+        // Observar historial de Room y actualizar la fila
+        viewLifecycleOwner.lifecycleScope.launch {
+            viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+                viewModel.historial.collect { lecturas ->
+                    histAdapter.clear()
+                    lecturas.forEach { histAdapter.add(it) }
+                }
+            }
+        }
+    }
+
+
 }
