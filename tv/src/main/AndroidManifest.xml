@@ -22,7 +22,7 @@
         android:supportsRtl="true">
 
         <activity
-            android:name="mx.utng.bgma.smarthealthmonitor.tv.MainActivity"
+            android:name="mx.utng.bgma.smarthealthmonitor.tv.TVActivity"
             android:exported="true"
             android:label="SmartHealth TV"
             android:screenOrientation="landscape">
