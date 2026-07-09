@@ -2,17 +2,16 @@
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
 }
 
 android {
     namespace = "mx.edu.utng.bgma.smarthealthmonitor"
-    compileSdk {
-        version = release(36)
-    }
+    compileSdk = 36
 
     defaultConfig {
-        applicationId = "mx.edu.utng.bgma.smarthealthmonitor"
+        applicationId = "mx.edu.utng.bgma.smarthealthmonitor.tv"
         minSdk = 24
         targetSdk = 36
         versionCode = 1
@@ -35,24 +34,34 @@ android {
     kotlinOptions {
         jvmTarget = "11"
     }
+    buildFeatures {
+        compose = true
+    }
 }
 
 dependencies {
-    // Leanback Library — el estándar de Android TV
-    implementation("androidx.leanback:leanback:1.2.0")
+    // Compose for TV — reemplaza Leanback Library
+    implementation("androidx.tv:tv-foundation:1.0.0")
+    implementation("androidx.tv:tv-material:1.0.0")
 
-    // Glide para cargar imágenes en las cards
-    implementation("com.github.bumptech.glide:glide:4.16.0")
+    // Compose base
+    implementation(platform(libs.androidx.compose.bom))
+    implementation(libs.androidx.compose.ui)
+    implementation(libs.androidx.compose.ui.graphics)
+    implementation(libs.androidx.compose.ui.tooling.preview)
+    implementation("androidx.compose.foundation:foundation")
+    implementation(libs.androidx.compose.material3)
+    implementation(libs.androidx.navigation.compose)
+    implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.7")
+    implementation("androidx.lifecycle:lifecycle-runtime-compose:2.8.7")
+    implementation(libs.androidx.activity.compose)
 
-    // Compartir Room + Repository con módulo shared (tv es app, no puede depender de :app)
+    // Compartir Room + Repository con módulo shared
     implementation(project(":shared"))
 
     // ViewModel + Coroutines
     implementation("androidx.lifecycle:lifecycle-viewmodel-ktx:2.8.7")
     implementation("androidx.lifecycle:lifecycle-runtime-ktx:2.8.7")
-
-    // Fragment (necesario para FragmentActivity y BrowseSupportFragment)
-    implementation("androidx.fragment:fragment-ktx:1.8.5")
 
     // Core KTX
     implementation(libs.androidx.core.ktx)
@@ -60,4 +69,6 @@ dependencies {
     // Wearable Data Layer API en TV
     implementation("com.google.android.gms:play-services-wearable:18.2.0")
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-play-services:1.7.3")
-}
+
+    debugImplementation(libs.androidx.compose.ui.tooling)
+}
