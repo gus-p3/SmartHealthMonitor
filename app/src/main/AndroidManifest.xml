@@ -3,6 +3,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     package="mx.edu.utng.bgma.smarthealthmonitor">
 
+    <!-- Permiso requerido para comunicación de red local (UDP) -->
+    <uses-permission android:name="android.permission.INTERNET" />
+
     <application
         android:name=".SmartHealthApp"
         android:allowBackup="true"

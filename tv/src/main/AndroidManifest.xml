@@ -1,5 +1,7 @@
-<!-- tv/src/main/AndroidManifest.xml -->
 <manifest xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <!-- Permiso requerido para recibir comunicación por red local (UDP) -->
+    <uses-permission android:name="android.permission.INTERNET" />
 
     <!-- Declarar que es una app de TV -->
     <uses-feature

@@ -32,17 +32,35 @@ class WearListenerService : WearableListenerService() {
                 PATH_FC -> {
                     val bpm = data.toIntOrNull() ?: return@launch
                     SmartHealthRepository.actualizarFC(bpm)
+                    enviarUDP("fc:$bpm")
                 }
                 PATH_PASOS -> {
                     val pasos = data.toIntOrNull() ?: return@launch
                     SmartHealthRepository.actualizarPasos(pasos)
+                    enviarUDP("pasos:$pasos")
                 }
                 PATH_SPO2 -> {
                     val spo2 = data.toIntOrNull() ?: return@launch
                     SmartHealthRepository.actualizarSpO2(spo2)
+                    enviarUDP("spo2:$spo2")
                 }
                 else -> Log.w(TAG, "Path desconocido: $path")
             }
+        }
+    }
+
+    private fun enviarUDP(mensaje: String) {
+        try {
+            val socket = java.net.DatagramSocket()
+            val buf = mensaje.toByteArray()
+            // 10.0.2.2 es la IP especial en Android Emulator para comunicarse con el Host o la red local de otros emuladores
+            val address = java.net.InetAddress.getByName("10.0.2.2")
+            val packet = java.net.DatagramPacket(buf, buf.size, address, 8888)
+            socket.send(packet)
+            socket.close()
+            Log.d(TAG, "UDP enviado: $mensaje")
+        } catch (e: Exception) {
+            Log.e(TAG, "Error enviando UDP: ${e.message}")
         }
     }
 

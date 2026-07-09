@@ -32,5 +32,46 @@ class SmartHealthTVApp : Application() {
             SmartHealthRepository.actualizarFC(85)
             SmartHealthRepository.actualizarFC(105) // Alerta (rojo)
         }
+
+        // Iniciar hilo UDP en la TV para recibir datos en vivo del emulador del teléfono
+        iniciarServidorUDPTV()
+    }
+
+    private fun iniciarServidorUDPTV() {
+        CoroutineScope(Dispatchers.IO).launch {
+            try {
+                // Escuchamos en el puerto 8888
+                val socket = java.net.DatagramSocket(8888)
+                val buf = ByteArray(1024)
+                android.util.Log.d("TV_DATO", "Servidor UDP de la TV iniciado en puerto 8888")
+                
+                while (true) {
+                    val packet = java.net.DatagramPacket(buf, buf.size)
+                    socket.receive(packet)
+                    val mensaje = String(packet.data, 0, packet.length)
+                    android.util.Log.d("TV_DATO", "UDP Recibido en TV: $mensaje")
+
+                    val partes = mensaje.split(":")
+                    if (partes.size == 2) {
+                        val tipo = partes[0]
+                        val valor = partes[1].toIntOrNull() ?: continue
+
+                        when (tipo) {
+                            "fc" -> {
+                                SmartHealthRepository.actualizarFC(valor)
+                            }
+                            "pasos" -> {
+                                SmartHealthRepository.actualizarPasos(valor)
+                            }
+                            "spo2" -> {
+                                SmartHealthRepository.actualizarSpO2(valor)
+                            }
+                        }
+                    }
+                }
+            } catch (e: Exception) {
+                android.util.Log.e("TV_DATO", "Error en Servidor UDP de TV: ${e.message}")
+            }
+        }
     }
 }

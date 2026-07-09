@@ -24,7 +24,12 @@ class WearListenerService : WearableListenerService() {
     override fun onMessageReceived(messageEvent: MessageEvent) {
         val data   = String(messageEvent.data)
         val path   = messageEvent.path
-        Log.d(TAG, "Mensaje recibido en TV: path=$path, data=$data")
+        
+        // Logs llamativos para ver en Logcat / Consolecat
+        Log.d("TV_DATO", "========================================")
+        Log.d("TV_DATO", "¡DATO RECIBIDO EN LA TELE! path=$path, data=$data")
+        Log.d("TV_DATO", "========================================")
+        println("TV_DATO: ¡DATO RECIBIDO EN LA TELE! path=$path, data=$data")
 
         serviceScope.launch {
             when (path) {
