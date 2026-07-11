@@ -26,6 +26,9 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.viewinterop.AndroidView
+import androidx.mediarouter.app.MediaRouteButton
+import com.google.android.gms.cast.framework.CastButtonFactory
 import mx.edu.utng.bgma.smarthealthmonitor.ui.screens.AlertaScreen
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +86,16 @@ fun DashboardScreen(
                         Text(
                             text = "SmartHealth",
                             style = MaterialTheme.typography.titleLarge
+                        )
+                    },
+                    actions = {
+                        AndroidView(
+                            factory = { context ->
+                                MediaRouteButton(context).apply {
+                                    CastButtonFactory.setUpMediaRouteButton(context, this)
+                                }
+                            },
+                            modifier = Modifier.size(48.dp)
                         )
                     },
                     colors = TopAppBarDefaults.topAppBarColors(
