@@ -1,9 +1,15 @@
+import java.util.Properties
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
     id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
+}
+val localProps = Properties()
+val localPropertiesFile = rootProject.file("local.properties")
+if (localPropertiesFile.exists()) {
+    localProps.load(localPropertiesFile.inputStream())
 }
 
 android {
@@ -18,8 +24,13 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
-    buildFeatures {
+        buildConfigField("String","NEON_API_KEY",
+                "\"${localProps.getProperty("NEON_API_KEY") ?: ""}\"")
+        buildConfigField("String","NEON_HOST",
+                "\"${localProps.getProperty("NEON_HOST") ?: ""}\"")
+        }
+
+        buildFeatures {
         buildConfig = true   // necesario en AGP 8+
         compose = true
     }
@@ -80,5 +91,18 @@ dependencies {
     // Eclipse Paho MQTT para Android
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+    // Retrofit + OkHttp para llamadas a Neon HTTP API
+    implementation("com.squareup.retrofit2:retrofit:2.11.0")
+    implementation("com.squareup.retrofit2:converter-gson:2.11.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
+    implementation("com.squareup.okhttp3:logging-interceptor:4.12.0")
+    // Kotlinx Serialization (para los DTOs)
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+    // WorkManager para sync periódico en background
+    implementation("androidx.work:work-runtime-ktx:2.9.1")
+    // Room (ya debe estar del proyecto base)
+    implementation("androidx.room:room-runtime:2.6.1")
+    ksp("androidx.room:room-compiler:2.6.1")
+    implementation("androidx.room:room-ktx:2.6.1")
 
 }
