@@ -12,6 +12,7 @@ import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import kotlinx.coroutines.launch
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
+import mx.edu.utng.bgma.smarthealthmonitor.mqtt.MqttConfig
 import androidx.compose.runtime.*
 import androidx.wear.compose.material.*
 import androidx.health.services.client.HealthServices
