@@ -1,12 +1,16 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
-    // Agregar junto a los otros plugins
     id("org.jetbrains.kotlin.plugin.serialization") version "1.9.22"
+}
 
-
+val localProps = Properties().apply {
+    val f = rootProject.file("local.properties")
+    if (f.exists()) load(f.inputStream())
 }
 
 android {
@@ -21,8 +25,16 @@ android {
         versionName = "1.0"
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
-    }
 
+        buildConfigField("String", "HIVEMQ_BROKER_URL", "\"${localProps["hivemq.brokerUrl"]}\"")
+        buildConfigField("String", "HIVEMQ_USERNAME",   "\"${localProps["hivemq.username"]}\"")
+        buildConfigField("String", "HIVEMQ_PASSWORD",   "\"${localProps["hivemq.password"]}\"")
+
+    }
+    buildFeatures {
+        buildConfig = true   // necesario en AGP 8+
+        compose = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -38,9 +50,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
@@ -76,12 +85,12 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     // Necesario para generar el código del DAO
     ksp("androidx.room:room-compiler:$roomVersion")
-    
+    // Kotlinx Serialization para JSON
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     // Shared module (KMM)
     implementation(project(":shared"))
     // Eclipse Paho MQTT para Android
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
-    // Kotlinx Serialization para JSON
-    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.6.3")
+
 }
