@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SmartHealthMonitor" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SmartHealthMonitor" parent="Theme.AppCompat.Light.NoActionBar" />
+
+    <style name="Theme.CastCompat" parent="Theme.AppCompat.Light">
+        <item name="android:windowIsTranslucent">false</item>
+        <item name="android:background">#FFFFFF</item>
+    </style>
 </resources>

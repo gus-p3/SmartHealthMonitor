@@ -22,13 +22,26 @@ class MqttTvSubscriber(
 
         client?.setCallback(object : MqttCallback {
             override fun messageArrived(topic: String, msg: MqttMessage) {
-                if (topic == MqttConfig.TOPIC_TV) {
-                    val tvMsg = Json.decodeFromString<TvMessage>(String(msg.payload))
-                    tvFlow.value = tvMsg
-                    android.util.Log.d("MQTT_TV","📺 Recibido: ${tvMsg.bpm} bpm")
+                try {
+                    val payloadStr = String(msg.payload)
+                    if (topic == MqttConfig.TOPIC_TV) {
+                        val tvMsg = Json.decodeFromString<TvMessage>(payloadStr)
+                        tvFlow.value = tvMsg
+                        android.util.Log.d("MQTT_TV","📺 Recibido de TV: ${tvMsg.bpm} bpm")
+                    } else if (topic == MqttConfig.TOPIC_FC) {
+                        val fcMsg = Json.decodeFromString<FcMessage>(payloadStr)
+                        val sdf = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault())
+                        val horaStr = sdf.format(java.util.Date(fcMsg.timestamp))
+                        tvFlow.value = TvMessage(bpm = fcMsg.bpm, estado = fcMsg.estado, hora = horaStr)
+                        android.util.Log.d("MQTT_TV","📺 Recibido directo del Reloj: ${fcMsg.bpm} bpm")
+                    }
+                } catch (e: Exception) {
+                    android.util.Log.e("MQTT_TV", "❌ Error al decodificar: ${e.message}")
                 }
             }
-            override fun connectionLost(cause: Throwable?) {}
+            override fun connectionLost(cause: Throwable?) {
+                android.util.Log.w("MQTT_TV", "Conexión perdida con el broker: ${cause?.message}")
+            }
             override fun deliveryComplete(token: IMqttDeliveryToken?) {}
         })
 
@@ -42,10 +55,11 @@ class MqttTvSubscriber(
         client?.connect(options, null, object : IMqttActionListener {
             override fun onSuccess(token: IMqttToken?) {
                 client?.subscribe(MqttConfig.TOPIC_TV, MqttConfig.QOS)
-                android.util.Log.d("MQTT_TV","✅ TV suscrita a ${MqttConfig.TOPIC_TV}")
+                client?.subscribe(MqttConfig.TOPIC_FC, MqttConfig.QOS)
+                android.util.Log.d("MQTT_TV","✅ TV suscrita a ${MqttConfig.TOPIC_TV} y ${MqttConfig.TOPIC_FC}")
             }
             override fun onFailure(token: IMqttToken?, ex: Throwable?) {
-                android.util.Log.e("MQTT_TV","❌ Error: ${ex?.message}")
+                android.util.Log.e("MQTT_TV","❌ Error de conexión MQTT", ex)
             }
         })
     }

@@ -50,7 +50,7 @@ class MqttAppService(
                 android.util.Log.d("MQTT_APP","✅ Conectado y suscrito a ${MqttConfig.TOPIC_FC}")
             }
             override fun onFailure(token: IMqttToken?, ex: Throwable?) {
-                android.util.Log.e("MQTT_APP","❌ Error: ${ex?.message}")
+                android.util.Log.e("MQTT_APP","❌ Error de conexión MQTT", ex)
             }
         })
     }

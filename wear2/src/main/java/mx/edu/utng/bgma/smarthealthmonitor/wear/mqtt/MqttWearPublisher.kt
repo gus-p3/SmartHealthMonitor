@@ -42,7 +42,10 @@ class MqttWearPublisher(private val context: Context) {
 
     /** Publicar FC al topic MQTT */
     fun publishFC(bpm: Int, estado: String) {
-        if (client?.isConnected != true) return
+        if (client?.isConnected != true) {
+            android.util.Log.w("MQTT_WEAR", "⚠️ No se pudo publicar: el cliente MQTT no está conectado.")
+            return
+        }
 
         val message = FcMessage(bpm = bpm, estado = estado)
         val payload = Json.encodeToString(message).toByteArray()
@@ -52,8 +55,12 @@ class MqttWearPublisher(private val context: Context) {
             isRetained = true  // el TV verá el último valor al conectarse
         }
 
-        client?.publish(MqttConfig.TOPIC_FC, mqttMessage)
-        android.util.Log.d("MQTT_WEAR", "📤 Publicado: ${bpm} bpm → ${MqttConfig.TOPIC_FC}")
+        try {
+            client?.publish(MqttConfig.TOPIC_FC, mqttMessage)
+            android.util.Log.d("MQTT_WEAR", "📤 Datos enviados: ${bpm} bpm → ${MqttConfig.TOPIC_FC}")
+        } catch (e: Exception) {
+            android.util.Log.e("MQTT_WEAR", "❌ Error al publicar: ${e.message}")
+        }
     }
 
     fun disconnect() { client?.disconnect() }

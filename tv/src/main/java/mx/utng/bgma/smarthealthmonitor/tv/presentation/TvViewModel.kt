@@ -38,6 +38,11 @@ class TvViewModel(
         viewModelScope.launch {
             mqttFlow.collect { tvMsg ->
                 tvMsg ?: return@collect
+                
+                // 1. Actualizar el repositorio local para persistir el dato en la BD de la TV
+                repository.actualizarFC(tvMsg.bpm)
+
+                // 2. Actualizar el estado de la UI
                 _state.update { it.copy(
                     fcActual = tvMsg.bpm,
                     fcEstado = tvMsg.estado,
