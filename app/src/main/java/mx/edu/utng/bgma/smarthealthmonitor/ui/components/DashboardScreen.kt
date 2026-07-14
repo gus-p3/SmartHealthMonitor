@@ -91,8 +91,12 @@ fun DashboardScreen(
                     actions = {
                         AndroidView(
                             factory = { context ->
-                                MediaRouteButton(context).apply {
-                                    CastButtonFactory.setUpMediaRouteButton(context, this)
+                                val themedContext = android.view.ContextThemeWrapper(
+                                    context,
+                                    mx.edu.utng.bgma.smarthealthmonitor.R.style.Theme_CastCompat
+                                )
+                                MediaRouteButton(themedContext).apply {
+                                    CastButtonFactory.setUpMediaRouteButton(themedContext, this)
                                 }
                             },
                             modifier = Modifier.size(48.dp)

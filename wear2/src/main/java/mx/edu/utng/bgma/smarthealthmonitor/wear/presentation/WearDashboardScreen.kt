@@ -14,6 +14,7 @@ import androidx.wear.compose.foundation.lazy.ScalingLazyColumn
 import androidx.wear.compose.foundation.lazy.rememberScalingLazyListState
 import androidx.wear.compose.material.*
 import kotlinx.coroutines.launch
+import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
 import mx.edu.utng.bgma.smarthealthmonitor.wear.HealthDataService
 import mx.edu.utng.bgma.smarthealthmonitor.wear.presentation.components.WearFCCard
 import mx.edu.utng.bgma.smarthealthmonitor.wear.presentation.models.WearDashboardViewModel
@@ -74,6 +75,30 @@ fun WearDashboardScreen(
                         }
                     },
                     colors = ChipDefaults.secondaryChipColors(),
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+            // Botón nuevo: Enviar Test MQTT (Por internet)
+            item {
+                Chip(
+                    label = { Text("☁️ Enviar Test MQTT") },
+                    onClick = {
+                        scope.launch {
+                            val randomFC = Random.nextInt(60, 120)
+                            val randomPasos = Random.nextInt(100, 10000)
+                            // Actualizar localmente la pantalla del reloj
+                            SmartHealthRepository.actualizarFC(randomFC)
+                            SmartHealthRepository.actualizarPasos(randomPasos)
+                            // Publicar por MQTT de forma manual
+                            viewModel.publicarManualMqtt(randomFC)
+                            // Mostrar mensaje de confirmación en el reloj
+                            android.widget.Toast.makeText(context, "Datos enviados", android.widget.Toast.LENGTH_SHORT).show()
+                        }
+                    },
+                    colors = ChipDefaults.primaryChipColors(
+                        backgroundColor = MaterialTheme.colors.primary
+                    ),
                     modifier = Modifier.fillMaxWidth()
                 )
             }

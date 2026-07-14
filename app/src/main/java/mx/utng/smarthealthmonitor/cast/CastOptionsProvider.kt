@@ -1,5 +1,6 @@
 package mx.utng.smarthealthmonitor.cast
 import android.content.Context
+import com.google.android.gms.cast.CastMediaControlIntent
 import com.google.android.gms.cast.framework.*
 import com.google.android.gms.cast.framework.media.CastMediaOptions
  

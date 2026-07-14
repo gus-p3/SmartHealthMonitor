@@ -6,9 +6,11 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.launch
 import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
+import mx.edu.utng.bgma.smarthealthmonitor.mqtt.MqttAppService
 
 class SmartHealthApp : Application() {
     private val applicationScope = CoroutineScope(SupervisorJob() + Dispatchers.Main)
+    lateinit var mqttService: MqttAppService
 
     override fun onCreate() {
         super.onCreate()
@@ -17,5 +19,9 @@ class SmartHealthApp : Application() {
         applicationScope.launch(Dispatchers.IO) {
             SmartHealthRepository.limpiarHistorialAntiguo()
         }
+        mqttService = MqttAppService(context = this)
+        mqttService.connect()
     }
+
+
 }

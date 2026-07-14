@@ -3,6 +3,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     id("com.google.devtools.ksp")
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.0.21"
 }
 
 android {
@@ -18,7 +19,10 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-
+    buildFeatures {
+        buildConfig = true   // necesario en AGP 8+
+        compose = true
+    }
     buildTypes {
         release {
             isMinifyEnabled = false
@@ -34,9 +38,6 @@ android {
     }
     kotlinOptions {
         jvmTarget = "11"
-    }
-    buildFeatures {
-        compose = true
     }
 }
 
@@ -72,7 +73,12 @@ dependencies {
     implementation("androidx.room:room-ktx:$roomVersion")
     // Necesario para generar el código del DAO
     ksp("androidx.room:room-compiler:$roomVersion")
-    
+    // Kotlinx Serialization para JSON
+    implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.7.1")
     // Shared module (KMM)
     implementation(project(":shared"))
+    // Eclipse Paho MQTT para Android
+    implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
+    implementation("org.eclipse.paho:org.eclipse.paho.android.service:1.1.1")
+
 }
