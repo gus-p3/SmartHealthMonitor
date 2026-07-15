@@ -72,6 +72,8 @@ fun WearDashboardScreen(
                             val randomPasos = Random.nextInt(100, 10000)
                             HealthDataService.enviarFCDirectamente(context, randomFC)
                             HealthDataService.enviarPasosDirectamente(context, randomPasos)
+                            // También enviar a Neon / MQTT para que la nube y la TV se enteren
+                            viewModel.publicarManualMqtt(randomFC)
                         }
                     },
                     colors = ChipDefaults.secondaryChipColors(),
