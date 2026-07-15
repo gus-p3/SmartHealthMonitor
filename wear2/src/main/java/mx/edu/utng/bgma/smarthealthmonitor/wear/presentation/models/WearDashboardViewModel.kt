@@ -14,6 +14,7 @@ import mx.edu.utng.bgma.smarthealthmonitor.wear.mqtt.MqttWearPublisher
 class WearDashboardViewModel(application: Application) : AndroidViewModel(application) {
 
     private val mqttPublisher = MqttWearPublisher(application)
+    private val neonRepo = mx.edu.utng.bgma.smarthealthmonitor.wear.data.WearNeonRepository()
 
     val fc: StateFlow<Int> = SmartHealthRepository.fcFlow
         .map { if (it == 0) 72 else it }
@@ -34,6 +35,21 @@ class WearDashboardViewModel(application: Application) : AndroidViewModel(applic
     init {
         // Conectar al broker MQTT al iniciar
         mqttPublisher.connect()
+
+        viewModelScope.launch {
+            fc.collect { bpm ->
+                val estado = when { 
+                    bpm < 60 -> "FC Baja"
+                    bpm > 100 -> "FC Alta"
+                    else -> "Normal" 
+                }
+                // Publicar a Neon en IO thread
+                launch(kotlinx.coroutines.Dispatchers.IO) {
+                    runCatching { neonRepo.publicarLectura(bpm, estado) }
+                        .onFailure { android.util.Log.w("WEAR","Sin red: ${it.message}") }
+                }
+            }
+        }
     }
 
     /**
