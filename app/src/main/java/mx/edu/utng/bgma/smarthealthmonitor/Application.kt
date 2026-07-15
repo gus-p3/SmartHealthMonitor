@@ -15,6 +15,7 @@ class SmartHealthApp : Application() {
     override fun onCreate() {
         super.onCreate()
         SmartHealthRepository.init(this)  // inicializar Room
+        mx.edu.utng.bgma.smarthealthmonitor.data.sync.NeonSyncWorker.schedule(this) // Programar sync periódico con Neon
 
         applicationScope.launch(Dispatchers.IO) {
             SmartHealthRepository.limpiarHistorialAntiguo()
