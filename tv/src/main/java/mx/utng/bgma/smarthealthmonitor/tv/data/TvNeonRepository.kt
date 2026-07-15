@@ -12,7 +12,6 @@ class TvNeonRepository {
     suspend fun obtenerHistorialCompleto(limite: Int = 50): List<LecturaFcDto> =
         withContext(Dispatchers.IO) {
             NeonClient.api.executeQuery(
-                auth    = NeonClient.AUTH_HEADER,
                 connStr = NeonClient.CONN_STRING,
                 request = NeonRequest(
                     query  = """SELECT id,bpm,estado,dispositivo,hora,created_at
@@ -28,7 +27,6 @@ class TvNeonRepository {
     suspend fun obtenerEstadisticas(): List<LecturaFcDto> =
         withContext(Dispatchers.IO) {
             NeonClient.api.executeQuery(
-                auth    = NeonClient.AUTH_HEADER,
                 connStr = NeonClient.CONN_STRING,
                 request = NeonRequest(
                     query  = """SELECT dispositivo,
