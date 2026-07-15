@@ -10,7 +10,7 @@ class TvViewModelFactory(private val context: Context) : ViewModelProvider.Facto
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(TvViewModel::class.java)) {
             SmartHealthRepository.init(context.applicationContext)
-            return TvViewModel(SmartHealthRepository, context.applicationContext) as T
+            return TvViewModel(context.applicationContext) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

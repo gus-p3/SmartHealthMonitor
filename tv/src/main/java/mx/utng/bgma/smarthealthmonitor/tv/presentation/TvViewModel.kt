@@ -5,56 +5,42 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
-import mx.edu.utng.bgma.smarthealthmonitor.data.SmartHealthRepository
-import mx.edu.utng.bgma.smarthealthmonitor.mqtt.TvMessage
+import mx.edu.utng.bgma.smarthealthmonitor.data.db.LecturaFC
+import mx.edu.utng.bgma.smarthealthmonitor.data.remote.LecturaFcDto
+import mx.utng.bgma.smarthealthmonitor.tv.data.TvNeonRepository
 import mx.utng.bgma.smarthealthmonitor.tv.domain.model.TvUiState
-import mx.utng.bgma.smarthealthmonitor.tv.mqtt.MqttTvSubscriber
 
-class TvViewModel(
-    private val repository: SmartHealthRepository,
-    private val context: Context
-) : ViewModel() {
-
-    private val _state = MutableStateFlow(TvUiState())
+class TvViewModel(private val context: Context) : ViewModel() {
+    private val neonRepo = TvNeonRepository()
+    private val _state   = MutableStateFlow(TvUiState())
     val state: StateFlow<TvUiState> = _state.asStateFlow()
-
-    // Flow de mensajes MQTT entrantes
-    private val mqttFlow = MutableStateFlow<TvMessage?>(null)
-    private val mqttSubscriber = MqttTvSubscriber(context, mqttFlow)
-
-    init {
-        mqttSubscriber.connect()
-
-        // Observar historial reactivo del Room DAO
+ 
+    init { cargarDatos() }
+ 
+    fun cargarDatos() {
         viewModelScope.launch {
-            repository.obtenerHistorial()
-                .catch { e -> _state.update { it.copy(error = e.message, isLoading = false) } }
-                .collect { lecturas ->
-                    _state.update { it.copy(lecturas = lecturas, isLoading = false) }
-                }
-        }
-
-        // Observar mensajes MQTT y actualizar el estado de la UI
-        viewModelScope.launch {
-            mqttFlow.collect { tvMsg ->
-                tvMsg ?: return@collect
-                
-                // 1. Actualizar el repositorio local para persistir el dato en la BD de la TV
-                repository.actualizarFC(tvMsg.bpm)
-
-                // 2. Actualizar el estado de la UI
+            _state.update { it.copy(isLoading=true) }
+            try {
+                val lecturas = neonRepo.obtenerHistorialCompleto(50)
+                val stats    = neonRepo.obtenerEstadisticas()
                 _state.update { it.copy(
-                    fcActual = tvMsg.bpm,
-                    fcEstado = tvMsg.estado,
-                    ultimaHora = tvMsg.hora,
+                    lecturas  = lecturas.map { dto -> dto.toLecturaFC() },
+                    estadisticas = stats.map { dto -> dto.toLecturaFC() },
                     isLoading = false
                 )}
+            } catch (e: Exception) {
+                _state.update { it.copy(error=e.message, isLoading=false) }
             }
         }
     }
-
-    override fun onCleared() {
-        super.onCleared()
-        mqttSubscriber.disconnect()
-    }
+    fun refresh() = cargarDatos()
 }
+
+fun LecturaFcDto.toLecturaFC() = LecturaFC(
+    id = this.id,
+    bpm = this.bpm,
+    estado = this.estado,
+    dispositivo = this.dispositivo,
+    hora = this.hora,
+    sincronizado = true
+)
