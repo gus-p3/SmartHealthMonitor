@@ -36,21 +36,6 @@ class WearDashboardViewModel(application: Application) : AndroidViewModel(applic
     init {
         // Conectar al broker MQTT al iniciar
         mqttPublisher.connect()
-
-        viewModelScope.launch {
-            fc.collect { bpm ->
-                val estado = when { 
-                    bpm < 60 -> "FC Baja"
-                    bpm > 100 -> "FC Alta"
-                    else -> "Normal" 
-                }
-                // Publicar a Neon en IO thread
-                launch(kotlinx.coroutines.Dispatchers.IO) {
-                    runCatching { neonRepo.publicarLectura(bpm, estado) }
-                        .onFailure { android.util.Log.w("WEAR","Sin red: ${it.message}") }
-                }
-            }
-        }
     }
 
     /**
@@ -65,6 +50,11 @@ class WearDashboardViewModel(application: Application) : AndroidViewModel(applic
             else      -> "Normal"
         }
         mqttPublisher.publishFC(bpm, estado)
+        
+        viewModelScope.launch(kotlinx.coroutines.Dispatchers.IO) {
+            runCatching { neonRepo.publicarLectura(bpm, estado) }
+                .onFailure { android.util.Log.w("WEAR","Error Neon: ${it.message}") }
+        }
     }
 
     override fun onCleared() {
