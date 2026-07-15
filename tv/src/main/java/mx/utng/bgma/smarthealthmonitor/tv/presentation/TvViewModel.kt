@@ -41,11 +41,20 @@ class TvViewModel(private val context: Context) : ViewModel() {
         viewModelScope.launch {
             _state.update { it.copy(isLoading=true) }
             try {
-                val lecturas = neonRepo.obtenerHistorialCompleto(50)
-                val stats    = neonRepo.obtenerEstadisticas()
+                val lecturas      = neonRepo.obtenerHistorialCompleto(50)
+                val stats         = neonRepo.obtenerEstadisticas()
+                val alertas       = neonRepo.obtenerAlertas24h()
+                val promedios     = neonRepo.obtenerPromedioPorHora()
+                val masRecientes  = neonRepo.obtenerMasRecientePorDispositivo()
+                val taquicardias  = neonRepo.obtenerTaquicardiaSostenida()
+
                 _state.update { it.copy(
-                    lecturas  = lecturas.map { dto -> dto.toLecturaFC() },
-                    estadisticas = stats.map { dto -> dto.toLecturaFC() },
+                    lecturas      = lecturas.map { dto -> dto.toLecturaFC() },
+                    estadisticas  = stats.map { dto -> dto.toLecturaFC() },
+                    alertas24h    = alertas.map { dto -> dto.toLecturaFC() },
+                    promediosHr   = promedios.map { dto -> dto.toLecturaFC() },
+                    masRecientes  = masRecientes.map { dto -> dto.toLecturaFC() },
+                    taquicardias  = taquicardias.map { dto -> dto.toLecturaFC() },
                     isLoading = false
                 )}
             } catch (e: Exception) {
