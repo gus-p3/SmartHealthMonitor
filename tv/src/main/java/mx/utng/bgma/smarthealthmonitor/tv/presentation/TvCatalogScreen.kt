@@ -44,7 +44,7 @@ fun TvCatalogScreen(
             item {
                 RowSection(title = "⚡ Estado Actual — ${state.fcActual} bpm") {
                     LazyRow(horizontalArrangement=Arrangement.spacedBy(16.dp)) {
-                        items(state.lecturas.takeLast(3)) { lectura ->
+                        items(state.lecturas.take(3)) { lectura ->
                             FcCardItem(lectura=lectura, onClick={ onCardClick(lectura.id) })
                         }
                     }
@@ -57,6 +57,26 @@ fun TvCatalogScreen(
                     LazyRow(horizontalArrangement=Arrangement.spacedBy(16.dp)) {
                         items(state.lecturas) { lectura ->
                             FcCardItem(lectura=lectura, onClick={ onCardClick(lectura.id) })
+                        }
+                    }
+                }
+            }
+ 
+            // Fila 3: Consultas Avanzadas (Reto)
+            item {
+                RowSection(title = "🚀 Consultas Avanzadas (Neon)") {
+                    LazyRow(horizontalArrangement=Arrangement.spacedBy(16.dp)) {
+                        items(state.alertas24h) { alert ->
+                            FcCardItem(lectura = alert, onClick = {})
+                        }
+                        items(state.promediosHr) { prom ->
+                            FcCardItem(lectura = prom, onClick = {})
+                        }
+                        items(state.masRecientes) { rec ->
+                            FcCardItem(lectura = rec, onClick = {})
+                        }
+                        items(state.taquicardias) { taq ->
+                            FcCardItem(lectura = taq, onClick = {})
                         }
                     }
                 }

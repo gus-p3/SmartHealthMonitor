@@ -46,10 +46,10 @@ fun TvDetailScreen(
                 contentAlignment=Alignment.Center) {
                 Text("❤", fontSize=80.sp)
             }
-            Text("${lectura.valorBpm} bpm",
+            Text("${lectura.bpm} bpm",
                  style=MaterialTheme.typography.displayMedium,
                  color=Color.White, fontWeight=FontWeight.ExtraBold)
-            Text("Estado: ${if (lectura.esNormal) "Normal" else "Alerta"}",
+            Text("Estado: ${if (lectura.estado == "Normal") "Normal" else "Alerta"}",
                  style=MaterialTheme.typography.bodyLarge, color=Color.White.copy(0.8f))
             Text("Hora: ${lectura.hora}",
                  style=MaterialTheme.typography.bodyMedium, color=Color.White.copy(0.6f))

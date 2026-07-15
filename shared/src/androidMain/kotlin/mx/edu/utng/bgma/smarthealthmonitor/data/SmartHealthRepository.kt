@@ -35,7 +35,13 @@ object SmartHealthRepository {
     suspend fun actualizarFC(bpm: Int) {
         _fcFlow.value = bpm
         // Persistir en Room automáticamente
-        dao?.insertar(LecturaFC(valorBpm = bpm))
+        val estado = when {
+            bpm < 60 -> "FC Baja"
+            bpm > 100 -> "FC Alta"
+            else -> "Normal"
+        }
+        val hora = java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.getDefault()).format(java.util.Date())
+        dao?.insertar(LecturaFC(bpm = bpm, estado = estado, hora = hora))
     }
 
     // S8: Funciones para actualizar Pasos y SpO2
@@ -49,9 +55,9 @@ object SmartHealthRepository {
 
     // Flow del historial desde Room
     fun obtenerHistorial(): Flow<List<LecturaFC>> =
-        dao?.obtenerUltimas() ?: emptyFlow()
+        dao?.obtenerTodas() ?: emptyFlow()
 
     suspend fun limpiarHistorialAntiguo(limite: Long = System.currentTimeMillis() - (7 * 24 * 60 * 60 * 1000L)) {
-        dao?.limpiarViejos(limite)
+        // Obsoleto con Neon sync
     }
 }
