@@ -15,7 +15,27 @@ class TvViewModel(private val context: Context) : ViewModel() {
     private val _state   = MutableStateFlow(TvUiState())
     val state: StateFlow<TvUiState> = _state.asStateFlow()
  
-    init { cargarDatos() }
+    private val mqttFlow = MutableStateFlow<mx.edu.utng.bgma.smarthealthmonitor.mqtt.TvMessage?>(null)
+    private val mqttSubscriber = mx.utng.bgma.smarthealthmonitor.tv.mqtt.MqttTvSubscriber(context, mqttFlow)
+
+    init { 
+        cargarDatos() 
+        mqttSubscriber.connect()
+
+        viewModelScope.launch {
+            mqttFlow.collect { tvMsg ->
+                if (tvMsg != null) {
+                    _state.update { it.copy(
+                        fcActual = tvMsg.bpm,
+                        fcEstado = tvMsg.estado,
+                        ultimaHora = tvMsg.hora
+                    )}
+                    // Cuando llega un mensaje nuevo, refrescamos el historial de Neon
+                    cargarDatos()
+                }
+            }
+        }
+    }
  
     fun cargarDatos() {
         viewModelScope.launch {
@@ -34,6 +54,11 @@ class TvViewModel(private val context: Context) : ViewModel() {
         }
     }
     fun refresh() = cargarDatos()
+
+    override fun onCleared() {
+        super.onCleared()
+        mqttSubscriber.disconnect()
+    }
 }
 
 fun LecturaFcDto.toLecturaFC() = LecturaFC(

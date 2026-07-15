@@ -44,7 +44,7 @@ fun TvCatalogScreen(
             item {
                 RowSection(title = "⚡ Estado Actual — ${state.fcActual} bpm") {
                     LazyRow(horizontalArrangement=Arrangement.spacedBy(16.dp)) {
-                        items(state.lecturas.takeLast(3)) { lectura ->
+                        items(state.lecturas.take(3)) { lectura ->
                             FcCardItem(lectura=lectura, onClick={ onCardClick(lectura.id) })
                         }
                     }
