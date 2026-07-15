@@ -13,8 +13,8 @@ class NeonSyncWorker(
  
     override suspend fun doWork(): Result {
         return try {
-            val db   = SmartHealthDB.getInstance(applicationContext)
-            val repo = SyncRepository(db.lecturaFCDao())
+            val db   = SmartHealthDB.getDatabase(applicationContext)
+            val repo = SyncRepository(db.lecturaDao())
  
             // 1. Enviar pendientes locales a Neon
             repo.enviarPendientes()

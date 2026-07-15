@@ -1,13 +1,13 @@
 package mx.edu.utng.bgma.smarthealthmonitor.data.remote
 
-import mx.edu.utng.bgma.smarthealthmonitor.BuildConfig
+import mx.edu.utng.bgma.smarthealthmonitor.shared.BuildConfig
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object NeonClient {
-    private const val BASE_URL = "https://${BuildConfig.NEON_HOST}/"
+    private val BASE_URL = "https://${BuildConfig.NEON_HOST}/"
  
     val AUTH_HEADER  = "Bearer ${BuildConfig.NEON_API_KEY}"
     val CONN_STRING  = "postgresql://[usuario]:[pass]@${BuildConfig.NEON_HOST}/neondb?sslmode=require"

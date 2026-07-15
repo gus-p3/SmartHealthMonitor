@@ -32,12 +32,12 @@ fun FcCardItem(
             modifier = Modifier.fillMaxSize().padding(16.dp),
             verticalArrangement = Arrangement.SpaceBetween
         ) {
-            Text("${lectura.valorBpm} bpm",
+            Text("${lectura.bpm} bpm",
                  style = MaterialTheme.typography.headlineMedium,
-                 color = Color.White,
-                 fontWeight = FontWeight.Bold)
+                 color = androidx.compose.ui.graphics.Color.White,
+                 fontWeight = androidx.compose.ui.text.font.FontWeight.Bold)
             Column {
-                Text(if (lectura.esNormal) "Normal" else "Alerta",
+                Text(if (lectura.estado == "Normal") "Normal" else "Alerta",
                      style = MaterialTheme.typography.bodyMedium,
                      color = Color.White.copy(alpha = 0.8f))
                 Text(lectura.hora,

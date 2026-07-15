@@ -4,11 +4,9 @@ import kotlinx.serialization.Serializable
 import retrofit2.http.*
  
 /** Request genérico para la Neon HTTP API */
-@Serializable
 data class NeonRequest(val query: String, val params: List<Any> = emptyList())
  
 /** Response de la Neon HTTP API */
-@Serializable
 data class NeonResponse<T>(
     val rows        : List<T>   = emptyList(),
     val rowCount    : Int       = 0,

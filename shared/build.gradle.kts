@@ -28,6 +28,12 @@ kotlin {
             val roomVersion = "2.6.1"
             implementation("androidx.room:room-runtime:$roomVersion")
             implementation("androidx.room:room-ktx:$roomVersion")
+            
+            // Retrofit + OkHttp para llamadas a Neon HTTP API
+            api("com.squareup.retrofit2:retrofit:2.11.0")
+            api("com.squareup.retrofit2:converter-gson:2.11.0")
+            api("com.squareup.okhttp3:okhttp:4.12.0")
+            api("com.squareup.okhttp3:logging-interceptor:4.12.0")
         }
     }
 }
@@ -47,6 +53,10 @@ android {
         buildConfigField("String", "HIVEMQ_BROKER_URL", "\"${localProps["hivemq.brokerUrl"]}\"")
         buildConfigField("String", "HIVEMQ_USERNAME",   "\"${localProps["hivemq.username"]}\"")
         buildConfigField("String", "HIVEMQ_PASSWORD",   "\"${localProps["hivemq.password"]}\"")
+        
+        // Credenciales Neon
+        buildConfigField("String", "NEON_API_KEY", "\"${localProps["NEON_API_KEY"]}\"")
+        buildConfigField("String", "NEON_HOST",    "\"${localProps["NEON_HOST"]}\"")
     }
     buildFeatures {
         buildConfig = true
